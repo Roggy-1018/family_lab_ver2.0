@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===== ユーザー関連のルール =====
+    match /users/{userId} {
+      // 自分のデータのみ読み書き可能
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // 新規ユーザー作成時の検証
+      allow create: if request.auth != null && 
+        request.auth.uid == userId &&
+        validateUserData(request.resource.data);
+    }
+    
+    // ===== アンケート関連のルール =====
+    match /surveys/{surveyId} {
+      // 認証済みユーザーは全てのアンケートを読み取り可能
+      allow read: if request.auth != null;
+      
+      // 管理者のみアンケートの作成・更新が可能
+      allow write: if request.auth != null && 
+        hasAdminRole(request.auth.uid);
+    }
+    
+    // ===== アンケート回答関連のルール =====
+    match /surveyResponses/{responseId} {
+      // 自分の回答のみ読み書き可能
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      
+      // 新規回答作成時の検証
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId &&
+        validateSurveyResponse(request.resource.data);
+    }
+    
+    // ===== 家族グループ関連のルール =====
+    match /familyGroups/{groupId} {
+      // グループメンバーのみアクセス可能
+      allow read, write: if request.auth != null && 
+        request.auth.uid in resource.data.members;
+      
+      // 新規グループ作成時の検証
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.createdBy &&
+        validateFamilyGroup(request.resource.data);
+    }
+    
+    // ===== 統計データ関連のルール =====
+    match /stats/{statId} {
+      // 認証済みユーザーは統計データを読み取り可能
+      allow read: if request.auth != null;
+      // 統計データの書き込みはシステムのみ
+      allow write: if false;
+    }
+    
+    // ===== デモデータ関連のルール =====
+    match /demoData/{docId} {
+      // 認証済みユーザーはデモデータを読み取り可能
+      allow read: if request.auth != null;
+      // デモデータの書き込みは管理者のみ
+      allow write: if request.auth != null && hasAdminRole(request.auth.uid);
+    }
+    
+    // ===== ヘルパー関数 =====
+    
+    // ユーザーデータの検証
+    function validateUserData(data) {
+      return data.keys().hasAll(['email', 'name', 'role']) &&
+        data.email is string &&
+        data.name is string &&
+        data.role in ['user', 'admin'] &&
+        data.email.matches('.*@.*\\..*') &&
+        data.name.size() > 0 &&
+        data.name.size() <= 100;
+    }
+    
+    // アンケート回答の検証
+    function validateSurveyResponse(data) {
+      return data.keys().hasAll(['userId', 'surveyId', 'answers']) &&
+        data.userId is string &&
+        data.surveyId is string &&
+        data.answers is list &&
+        data.answers.size() > 0 &&
+        data.answers.size() <= 100;
+    }
+    
+    // 家族グループの検証
+    function validateFamilyGroup(data) {
+      return data.keys().hasAll(['name', 'createdBy', 'members']) &&
+        data.name is string &&
+        data.createdBy is string &&
+        data.members is list &&
+        data.createdBy in data.members &&
+        data.name.size() > 0 &&
+        data.name.size() <= 50 &&
+        data.members.size() <= 10;
+    }
+    
+    // 管理者権限の確認
+    function hasAdminRole(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)) &&
+        get(/databases/$(database)/documents/users/$(userId)).data.role == 'admin';
+    }
+  }
+}
