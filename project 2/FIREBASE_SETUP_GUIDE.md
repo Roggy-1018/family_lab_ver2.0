@@ -33,15 +33,6 @@
 5. **🚨 重要**: 表示される設定オブジェクトを必ずコピーして保存
 
 ```javascript
-// この設定情報をコピーして保存してください
-const firebaseConfig = {
-  apiKey: "AIzaSyC9aBDyToBTkuEED359FDuxd-XfBKY-QzU",
-  authDomain: "family-lab-9ff74.firebaseapp.com",
-  projectId: "family-lab-9ff74",
-  storageBucket: "family-lab-9ff74.firebasestorage.app",
-  messagingSenderId: "260910016958",
-  appId: "1:260910016958:web:6cf4709c9d29c58384f1ef",
-  measurementId: "G-S8VRJY59LV"
 };
 ```
 
