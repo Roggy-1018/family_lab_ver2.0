@@ -5,13 +5,7 @@ import { getStorage } from 'firebase/storage';
 
 // 環境変数から Firebase 設定を取得
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC9aBDyToBTkuEED359FDuxd-XfBKY-QzU",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "family-lab-9ff74.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "family-lab-9ff74",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "family-lab-9ff74.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "260910016958",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:260910016958:web:6cf4709c9d29c58384f1ef",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-S8VRJY59LV"
+  apiKey: 
 };
 
 // Firebaseアプリを初期化
